@@ -175,7 +175,7 @@ GameObject:
   - component: {fileID: 435722}
   - component: {fileID: 2724318171249743099}
   m_Layer: 0
-  m_Name: arandano
+  m_Name: blue_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
