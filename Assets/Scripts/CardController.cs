@@ -9,8 +9,10 @@ public class CardController : MonoBehaviour
 {
     [SerializeField] private List<GameObject> _prefabs;
 
+    public int maxCardTypes => _prefabs.Count;
+    public float _cardSize = 2f;
     public int cardType = -1;
-    public UnityEvent OnClicked;
+    public UnityEvent<CardController> OnClicked;
 
     private Animator _animator;
 
@@ -33,7 +35,7 @@ public class CardController : MonoBehaviour
     //Dispara el evento del click del mouse
     private void OnMouseUpAsButton()
     {
-        OnClicked.Invoke();
+        OnClicked.Invoke(this);
     }
 
     public void TestAnimation()
