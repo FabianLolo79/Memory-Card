@@ -13,6 +13,11 @@ public class LevelController : MonoBehaviour
     [SerializeField] private int _columns = 4;
     [SerializeField] private int _rows = 4;
     [SerializeField] private int _difficulty = 4;
+    [SerializeField] private int _movements = 10;
+
+    private CardController _activeCard;
+    private int _movementsUsed = 0;
+    private bool _blockInput = true;
 
     // Start is called before the first frame update
     void Start()
@@ -24,9 +29,10 @@ public class LevelController : MonoBehaviour
     {
         if (_difficulty > _cardPrefab.maxCardTypes)
         {
-            Debug.Assert(false);
             _difficulty = Math.Min(_difficulty, _cardPrefab.maxCardTypes);
+            Debug.Assert(false);
         }
+
         Debug.Assert((_rows * _columns) % 2 == 0);
 
         _cards.ForEach(c => Destroy(c.gameObject));
@@ -67,11 +73,89 @@ public class LevelController : MonoBehaviour
                 card.OnClicked.AddListener(OnCardClicked);
                 _cards.Add(card);
             }
-        } 
+        }
+
+        _blockInput = false;
+        _movementsUsed = 0;
     }
 
     private void OnCardClicked(CardController card)
     {
-        card.TestAnimation();
+        if (_blockInput)
+        {
+            return;
+        }
+
+        _blockInput = true;
+        
+        if (_activeCard == null)
+        {
+            StartCoroutine(SelectCard(card));
+            return;
+        }
+
+        _movementsUsed ++;
+
+        if (card.cardType == _activeCard.cardType)
+        {
+            StartCoroutine(Score(card));
+            return;
+        }
+
+        StartCoroutine(Fail(card));
+    }
+
+    private IEnumerator SelectCard(CardController card)
+    {
+        // activate card
+        _activeCard = card;
+        _activeCard.Reveal();
+        yield return new WaitForSeconds(0.5f);
+        _blockInput = false;
+    }
+
+    private IEnumerator Score(CardController card)
+    {
+        card.Reveal();
+        yield return new WaitForSeconds(1f);
+        _cards.Remove(_activeCard);
+        _cards.Remove(card);
+        Destroy(card.gameObject);
+        Destroy(_activeCard.gameObject);
+        _activeCard = null;
+        _blockInput = false;
+
+        if (_cards.Count < 1)
+        {
+            Win();
+        }
+    }
+
+    private IEnumerator Fail(CardController card)
+    {
+        card.Reveal();
+        yield return new WaitForSeconds(1f);
+        _activeCard.Hide();
+        card.Hide();
+        _activeCard = null;
+        yield return new WaitForSeconds(0.5f);
+        
+        if (_movementsUsed >= _movements)
+        {
+            Lose();
+            yield break;
+        }
+
+        _blockInput = false;
+    }
+
+    private void Win()
+    {
+        Debug.Log("Voctory");
+    }
+
+    private void Lose()
+    {
+        Debug.Log("Defeat");
     }
 }
