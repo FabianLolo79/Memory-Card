@@ -22,11 +22,12 @@ public class LevelController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StarLevel();
+        StartLevel();
     }
 
-    public void StarLevel()
+    public void StartLevel()
     {
+        // 
         if (_difficulty > _cardPrefab.maxCardTypes)
         {
             _difficulty = Math.Min(_difficulty, _cardPrefab.maxCardTypes);
@@ -55,16 +56,16 @@ public class LevelController : MonoBehaviour
         List<int> chosenTypes = new List<int>();
         for (int i = 0; i < (_rows * _columns) / 2; i++)
         {
-            int chooseType = gameTypes[UnityEngine.Random.Range(0, allTypes.Count)];
+            int chooseType = gameTypes[UnityEngine.Random.Range(0, gameTypes.Count)]; //allTypes cambio por gameTypes
             chosenTypes.Add(chooseType);
             chosenTypes.Add(chooseType);
         }
 
         Vector3 offSet = new Vector3((_columns - 1) * _cardPrefab._cardSize, (_rows - 1) * _cardPrefab._cardSize, 0f) * 0.5f;
 
-        for (int y = 0; y < _rows; y++)
+        for (int y = 0; y < _rows; ++y)
         {
-            for (int x = 0; x < _columns; x++)
+            for (int x = 0; x < _columns; ++x)
             {
                 Vector3 position = new Vector3(x * _cardPrefab._cardSize, y * _cardPrefab._cardSize, 0f);
                 var card = Instantiate(_cardPrefab, position - offSet, Quaternion.identity);
@@ -76,7 +77,7 @@ public class LevelController : MonoBehaviour
         }
 
         _blockInput = false;
-        _movementsUsed = 0;
+        //_movementsUsed = 0;
     }
 
     private void OnCardClicked(CardController card)

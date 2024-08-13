@@ -238,6 +238,8 @@ MonoBehaviour:
   _cardPrefab: {fileID: 3693726320956627840, guid: b447114bed4a0f343a75b64a288fd239, type: 3}
   _columns: 4
   _rows: 3
+  _difficulty: 3
+  _movements: 6
 --- !u!4 &1290606843
 Transform:
   m_ObjectHideFlags: 0
