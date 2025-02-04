@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class LevelController : MonoBehaviour
@@ -8,25 +9,36 @@ public class LevelController : MonoBehaviour
 
     [SerializeField] private CardController _cardPrefab;
 
-    private List<CardController> _cards = new List<CardController>();
+    [Header("UI References")]
+    [SerializeField] private TMP_Text _levelText;
+    [SerializeField] private TMP_Text _movementsText;
+    [SerializeField] GameObject _gameObjectButton;
 
+
+    [Header("LevelData")]
     [SerializeField] private int _columns = 4;
     [SerializeField] private int _rows = 4;
     [SerializeField] private int _difficulty = 4;
     [SerializeField] private int _movements = 10;
 
+    private List<CardController> _cards = new List<CardController>();
     private CardController _activeCard;
     private int _movementsUsed = 0;
     private bool _blockInput = true;
+    private int _level = 0;
 
     // Start is called before the first frame update
     void Start()
     {
+        _level = PlayerPrefs.GetInt("Level", 0);
         StartLevel();
     }
 
     public void StartLevel()
     {
+        _gameObjectButton.SetActive(false);
+        
+        
         // 
         if (_difficulty > _cardPrefab.maxCardTypes)
         {
@@ -77,7 +89,9 @@ public class LevelController : MonoBehaviour
         }
 
         _blockInput = false;
-        //_movementsUsed = 0;
+        _movementsUsed = 0;
+        _levelText.text = $"Level: {_level}";
+        _movementsText.text = $"Moves: {_movements}";
     }
 
     private void OnCardClicked(CardController card)
@@ -96,6 +110,7 @@ public class LevelController : MonoBehaviour
         }
 
         _movementsUsed ++;
+        _movementsText.text = $"Moves: {_movements - _movementsUsed}";
 
         if (card.cardType == _activeCard.cardType)
         {
@@ -129,7 +144,16 @@ public class LevelController : MonoBehaviour
         if (_cards.Count < 1)
         {
             Win();
+            yield break;
         }
+
+        if (_movementsUsed >= _movements)
+        {
+            Lose();
+            yield break;
+        }
+
+        _blockInput = false;
     }
 
     private IEnumerator Fail(CardController card)
@@ -152,11 +176,17 @@ public class LevelController : MonoBehaviour
 
     private void Win()
     {
-        Debug.Log("Voctory");
+        _level++;
+        PlayerPrefs.SetInt("Level", _level);
+        Debug.Log("Victory");
+        _gameObjectButton.SetActive(true);
+
     }
 
     private void Lose()
     {
         Debug.Log("Defeat");
+        _gameObjectButton.SetActive(true);
+        _blockInput = true;
     }
 }
