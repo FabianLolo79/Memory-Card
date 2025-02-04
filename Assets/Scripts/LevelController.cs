@@ -6,6 +6,14 @@ using UnityEngine;
 
 public class LevelController : MonoBehaviour
 {
+    [Serializable] 
+    public class LevelData
+    {
+        public int Columns;
+        public int Rows;
+        public int Difficulty;
+        public int Movements;
+    }
 
     [SerializeField] private CardController _cardPrefab;
 
@@ -16,10 +24,8 @@ public class LevelController : MonoBehaviour
 
 
     [Header("LevelData")]
-    [SerializeField] private int _columns = 4;
-    [SerializeField] private int _rows = 4;
-    [SerializeField] private int _difficulty = 4;
-    [SerializeField] private int _movements = 10;
+
+    [SerializeField] private List<LevelData> _levels = new List<LevelData>();
 
     private List<CardController> _cards = new List<CardController>();
     private CardController _activeCard;
@@ -37,16 +43,15 @@ public class LevelController : MonoBehaviour
     public void StartLevel()
     {
         _gameObjectButton.SetActive(false);
-        
-        
+
+        Debug.Assert((_levels[_level].Rows * _levels[_level].Columns) % 2 == 0);
+
         // 
-        if (_difficulty > _cardPrefab.maxCardTypes)
+        if (_levels[_level].Difficulty > _cardPrefab.maxCardTypes)
         {
-            _difficulty = Math.Min(_difficulty, _cardPrefab.maxCardTypes);
+            _levels[_level].Difficulty = Math.Min(_levels[_level].Difficulty, _cardPrefab.maxCardTypes);
             Debug.Assert(false);
         }
-
-        Debug.Assert((_rows * _columns) % 2 == 0);
 
         _cards.ForEach(c => Destroy(c.gameObject));
         _cards.Clear();
@@ -58,7 +63,7 @@ public class LevelController : MonoBehaviour
         }
 
         List<int> gameTypes = new List<int>();
-        for (int i = 0; i < _difficulty; i++)
+        for (int i = 0; i < _levels[_level].Difficulty; i++)
         {
             int chooseType = allTypes[UnityEngine.Random.Range(0, allTypes.Count)];
             allTypes.Remove(chooseType);
@@ -66,18 +71,18 @@ public class LevelController : MonoBehaviour
         }
         
         List<int> chosenTypes = new List<int>();
-        for (int i = 0; i < (_rows * _columns) / 2; i++)
+        for (int i = 0; i < (_levels[_level].Rows * _levels[_level].Columns) / 2; i++)
         {
             int chooseType = gameTypes[UnityEngine.Random.Range(0, gameTypes.Count)]; //allTypes cambio por gameTypes
             chosenTypes.Add(chooseType);
             chosenTypes.Add(chooseType);
         }
 
-        Vector3 offSet = new Vector3((_columns - 1) * _cardPrefab._cardSize, (_rows - 1) * _cardPrefab._cardSize, 0f) * 0.5f;
+        Vector3 offSet = new Vector3((_levels[_level].Columns - 1) * _cardPrefab._cardSize, (_levels[_level].Rows - 1) * _cardPrefab._cardSize, 0f) * 0.5f;
 
-        for (int y = 0; y < _rows; ++y)
+        for (int y = 0; y < _levels[_level].Rows; ++y)
         {
-            for (int x = 0; x < _columns; ++x)
+            for (int x = 0; x < _levels[_level].Columns; ++x)
             {
                 Vector3 position = new Vector3(x * _cardPrefab._cardSize, y * _cardPrefab._cardSize, 0f);
                 var card = Instantiate(_cardPrefab, position - offSet, Quaternion.identity);
@@ -91,7 +96,7 @@ public class LevelController : MonoBehaviour
         _blockInput = false;
         _movementsUsed = 0;
         _levelText.text = $"Level: {_level}";
-        _movementsText.text = $"Moves: {_movements}";
+        _movementsText.text = $"Moves: {_levels[_level].Movements}";
     }
 
     private void OnCardClicked(CardController card)
@@ -110,7 +115,7 @@ public class LevelController : MonoBehaviour
         }
 
         _movementsUsed ++;
-        _movementsText.text = $"Moves: {_movements - _movementsUsed}";
+        _movementsText.text = $"Moves: {_levels[_level].Movements - _movementsUsed}";
 
         if (card.cardType == _activeCard.cardType)
         {
@@ -147,7 +152,7 @@ public class LevelController : MonoBehaviour
             yield break;
         }
 
-        if (_movementsUsed >= _movements)
+        if (_movementsUsed >= _levels[_level].Movements)
         {
             Lose();
             yield break;
@@ -165,7 +170,7 @@ public class LevelController : MonoBehaviour
         _activeCard = null;
         yield return new WaitForSeconds(0.5f);
         
-        if (_movementsUsed >= _movements)
+        if (_movementsUsed >= _levels[_level].Movements)
         {
             Lose();
             yield break;
@@ -177,6 +182,10 @@ public class LevelController : MonoBehaviour
     private void Win()
     {
         _level++;
+        if (_level > _levels.Count)
+        {
+            _level = 0;
+        }
         PlayerPrefs.SetInt("Level", _level);
         Debug.Log("Victory");
         _gameObjectButton.SetActive(true);
