@@ -20,7 +20,8 @@ public class LevelController : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private TMP_Text _levelText;
     [SerializeField] private TMP_Text _movementsText;
-    [SerializeField] GameObject _gameObjectButton;
+    [SerializeField] GameObject _gameObjectButtonRestart;
+    [SerializeField] GameObject _gameObjectButtonQuit;
 
 
     [Header("LevelData")]
@@ -42,7 +43,9 @@ public class LevelController : MonoBehaviour
 
     public void StartLevel()
     {
-        _gameObjectButton.SetActive(false);
+        // Hide buttons
+        _gameObjectButtonRestart.SetActive(false);
+        _gameObjectButtonQuit.SetActive(false);
 
         Debug.Assert((_levels[_level].Rows * _levels[_level].Columns) % 2 == 0);
 
@@ -188,14 +191,21 @@ public class LevelController : MonoBehaviour
         }
         PlayerPrefs.SetInt("Level", _level);
         Debug.Log("Victory");
-        _gameObjectButton.SetActive(true);
+        _gameObjectButtonRestart.SetActive(true);
+        _gameObjectButtonQuit.SetActive(true);
 
     }
 
     private void Lose()
     {
         Debug.Log("Defeat");
-        _gameObjectButton.SetActive(true);
+        _gameObjectButtonRestart.SetActive(true);
+        _gameObjectButtonQuit.SetActive(true);
         _blockInput = true;
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 }
