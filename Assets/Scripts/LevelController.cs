@@ -22,6 +22,7 @@ public class LevelController : MonoBehaviour
     [SerializeField] private TMP_Text _movementsText;
     [SerializeField] GameObject _gameObjectButtonRestart;
     [SerializeField] GameObject _gameObjectButtonQuit;
+    
 
 
     [Header("LevelData")]
@@ -204,8 +205,5 @@ public class LevelController : MonoBehaviour
         _blockInput = true;
     }
 
-    public void Quit()
-    {
-        Application.Quit();
-    }
+   
 }
